@@ -13,13 +13,10 @@ public class JobUnit {
 
     private final String name;
     private final Map<String, ScheduledFuture<?>> jobMap = new ConcurrentHashMap<>();
-    //private final ConcurrentCyclicFIFO<ScheduledFuture<?>> jobBuffer;
-
     ////////////////////////////////////////////////////////////////////////////////
 
     public JobUnit(String name) {
         this.name = name;
-        //this.jobBuffer = new ConcurrentCyclicFIFO<>();
     }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -30,21 +27,24 @@ public class JobUnit {
         }
 
         return jobMap.putIfAbsent(key, scheduledFuture) == null;
-        //return jobBuffer.offer(scheduledFuture);
     }
 
     ////////////////////////////////////////////////////////////////////////////////
 
-    public void stop() {
-        /*while(true) {
-            ScheduledFuture<?> scheduledFuture = jobBuffer.poll();
-            if (scheduledFuture == null) {
-                return;
-            }
+    public boolean stop(String jobKey) {
+        if (jobKey == null) {
+            return false;
+        }
 
-            scheduledFuture.cancel(true);
-        }*/
+        ScheduledFuture<?> scheduledFuture = jobMap.get(jobKey);
+        if (scheduledFuture == null) {
+            return false;
+        }
 
+        return scheduledFuture.cancel(true);
+    }
+
+    public void stopAll() {
         for (Map.Entry<String, ScheduledFuture<?>> entry : jobMap.entrySet()) {
             if (entry == null) {
                 continue;

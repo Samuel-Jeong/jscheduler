@@ -55,7 +55,7 @@ public class ScheduleManager {
         return cloneMap;
     }
 
-    public ScheduleUnit addScheduleUnit(String key, int threadCount) {
+    private ScheduleUnit addScheduleUnit(String key, int threadCount) {
         if (key == null) {
             return null;
         }
@@ -71,14 +71,14 @@ public class ScheduleManager {
             );
             return scheduleUnitMap.get(key);
         } catch (Exception e) {
-            logger.warn("Fail to add the call info.", e);
+            logger.warn("Fail to add the schedule unit.", e);
             return null;
         } finally {
             scheduleUnitMapLock.unlock();
         }
     }
 
-    public ScheduleUnit removeScheduleUnit(String key) {
+    private ScheduleUnit removeScheduleUnit(String key) {
         if (key == null) { return null; }
 
         try {
@@ -99,7 +99,7 @@ public class ScheduleManager {
         return scheduleUnitMap.get(key);
     }
 
-    public void clearCallInfoMap() {
+    public void clearScheduleUnitMap() {
         try {
             scheduleUnitMapLock.lock();
 
@@ -125,40 +125,37 @@ public class ScheduleManager {
         return scheduleUnit.addJobUnit(job);
     }
 
-    public boolean removeJob(String key) {
-        if (key == null) { return false; }
+    public boolean removeJob(String scheduleUnitKey, String jobKey) {
+        if (scheduleUnitKey == null || jobKey == null) { return false; }
 
-        ScheduleUnit scheduleUnit = getScheduleUnit(key);
+        ScheduleUnit scheduleUnit = getScheduleUnit(scheduleUnitKey);
         if (scheduleUnit == null) {
             return false;
         }
 
-        return scheduleUnit.removeJobUnit(key);
+        return scheduleUnit.removeJobUnit(scheduleUnitKey, jobKey);
     }
 
-    public void startJob(String key) {
-        if (key == null) { return; }
-
-        ScheduleUnit scheduleUnit = getScheduleUnit(key);
+    public boolean initJob(String scheduleUnitKey, int threadCount) {
+        ScheduleUnit scheduleUnit = addScheduleUnit(scheduleUnitKey, threadCount);
         if (scheduleUnit == null) {
-            return;
+            return false;
         }
 
         scheduleUnit.start();
+        return true;
     }
 
-    public void stopJob(String key) {
-        if (key == null) { return; }
-
-        ScheduleUnit scheduleUnit = getScheduleUnit(key);
+    public boolean stopJob(String scheduleUnitKey) {
+        ScheduleUnit scheduleUnit = getScheduleUnit(scheduleUnitKey);
         if (scheduleUnit == null) {
-            return;
+            return false;
         }
 
         scheduleUnit.stop();
+        return removeScheduleUnit(scheduleUnitKey) != null;
     }
 
     ////////////////////////////////////////////////////////////////////////////////
-
 
 }
