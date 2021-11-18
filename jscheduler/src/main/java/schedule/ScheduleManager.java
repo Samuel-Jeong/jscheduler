@@ -1,8 +1,9 @@
-package module;
+package schedule;
 
-import base.ScheduleUnit;
+import job.Job;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import schedule.unit.ScheduleUnit;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -54,7 +55,7 @@ public class ScheduleManager {
         return cloneMap;
     }
 
-    public ScheduleUnit addScheduleUnit(String key, int threadCount, long delay) {
+    public ScheduleUnit addScheduleUnit(String key, int threadCount) {
         if (key == null) {
             return null;
         }
@@ -65,8 +66,7 @@ public class ScheduleManager {
             scheduleUnitMap.putIfAbsent(key,
                     new ScheduleUnit(
                             key,
-                            threadCount,
-                            delay
+                            threadCount
                     )
             );
             return scheduleUnitMap.get(key);
@@ -78,7 +78,7 @@ public class ScheduleManager {
         }
     }
 
-    public ScheduleUnit deleteScheduleUnit(String key) {
+    public ScheduleUnit removeScheduleUnit(String key) {
         if (key == null) { return null; }
 
         try {
@@ -93,10 +93,10 @@ public class ScheduleManager {
         }
     }
 
-    public ScheduleUnit getScheduleUnit(String callId) {
-        if (callId == null) { return null; }
+    public ScheduleUnit getScheduleUnit(String key) {
+        if (key == null) { return null; }
 
-        return scheduleUnitMap.get(callId);
+        return scheduleUnitMap.get(key);
     }
 
     public void clearCallInfoMap() {
@@ -111,6 +111,54 @@ public class ScheduleManager {
             scheduleUnitMapLock.unlock();
         }
     }
+
+    ////////////////////////////////////////////////////////////////////////////////
+
+    public boolean addJob(String key, Job job) {
+        if (key == null || job == null) { return false; }
+
+        ScheduleUnit scheduleUnit = getScheduleUnit(key);
+        if (scheduleUnit == null) {
+            return false;
+        }
+
+        return scheduleUnit.addJobUnit(job);
+    }
+
+    public boolean removeJob(String key) {
+        if (key == null) { return false; }
+
+        ScheduleUnit scheduleUnit = getScheduleUnit(key);
+        if (scheduleUnit == null) {
+            return false;
+        }
+
+        return scheduleUnit.removeJobUnit(key);
+    }
+
+    public void startJob(String key) {
+        if (key == null) { return; }
+
+        ScheduleUnit scheduleUnit = getScheduleUnit(key);
+        if (scheduleUnit == null) {
+            return;
+        }
+
+        scheduleUnit.start();
+    }
+
+    public void stopJob(String key) {
+        if (key == null) { return; }
+
+        ScheduleUnit scheduleUnit = getScheduleUnit(key);
+        if (scheduleUnit == null) {
+            return;
+        }
+
+        scheduleUnit.stop();
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////
 
 
 }
