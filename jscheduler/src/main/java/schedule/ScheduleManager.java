@@ -14,7 +14,7 @@ public class ScheduleManager {
     private static final Logger logger = LoggerFactory.getLogger(ScheduleManager.class);
     
     private static ScheduleManager scheduleManager = null;
-    
+
     private final HashMap<String, ScheduleUnit> scheduleUnitMap = new HashMap<>();
     private final ReentrantLock scheduleUnitMapLock = new ReentrantLock();
 
@@ -114,15 +114,19 @@ public class ScheduleManager {
 
     ////////////////////////////////////////////////////////////////////////////////
 
+    public boolean initJob(String key, int threadPoolCount) {
+        return addScheduleUnit(key, threadPoolCount) != null;
+    }
+
     public boolean addJob(String key, Job job) {
-        if (key == null || job == null) { return false; }
+        if (key == null) { return false; }
 
         ScheduleUnit scheduleUnit = getScheduleUnit(key);
         if (scheduleUnit == null) {
             return false;
         }
 
-        return scheduleUnit.addJobUnit(job);
+        return scheduleUnit.addJobUnit(job, 1);
     }
 
     public boolean removeJob(String scheduleUnitKey, String jobKey) {
@@ -134,16 +138,6 @@ public class ScheduleManager {
         }
 
         return scheduleUnit.removeJobUnit(scheduleUnitKey, jobKey);
-    }
-
-    public boolean initJob(String scheduleUnitKey, int threadCount) {
-        ScheduleUnit scheduleUnit = addScheduleUnit(scheduleUnitKey, threadCount);
-        if (scheduleUnit == null) {
-            return false;
-        }
-
-        scheduleUnit.start();
-        return true;
     }
 
     public boolean stopJob(String scheduleUnitKey) {

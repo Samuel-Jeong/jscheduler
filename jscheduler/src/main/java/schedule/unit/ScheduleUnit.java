@@ -7,7 +7,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 public class ScheduleUnit {
 
@@ -16,66 +15,52 @@ public class ScheduleUnit {
     public static final int DEFAULT_THREAD_COUNT = 5;
 
     private final String scheduleUnitKey;
-    private final long createdTime;
-    private final int threadCount;
+    private final int threadCount; // JobUnit count
 
     ////////////////////////////////////////////////////////////////////////////////
 
-    private ScheduledThreadPoolExecutor scheduledThreadPoolExecutor = null;
-
-    private final Map<String, JobUnit> jobUnitMap = new ConcurrentHashMap<>();
+    private final Map<String, JobUnit> jobUnitMap;
 
     ////////////////////////////////////////////////////////////////////////////////
 
     public ScheduleUnit(String key, int threadCount) {
         this.scheduleUnitKey = key;
-        this.createdTime = System.currentTimeMillis();
 
         if (threadCount > 0) {
             this.threadCount = threadCount;
         } else {
             this.threadCount = DEFAULT_THREAD_COUNT;
         }
+
+        jobUnitMap = new ConcurrentHashMap<>(this.threadCount);
     }
 
     ////////////////////////////////////////////////////////////////////////////////
-
-    public void start() {
-        if (scheduledThreadPoolExecutor == null) {
-            scheduledThreadPoolExecutor = new ScheduledThreadPoolExecutor(threadCount);
-        }
-    }
 
     public void stop() {
         for (JobUnit jobUnit : jobUnitMap.values()) {
             jobUnit.stopAll();
         }
-
-        scheduledThreadPoolExecutor.shutdown();
-        scheduledThreadPoolExecutor = null;
     }
 
     ////////////////////////////////////////////////////////////////////////////////
 
-    public boolean addJobUnit(Job job) {
-        if (scheduledThreadPoolExecutor == null || job == null) {
+    public boolean addJobUnit(Job job, int threadPoolCount) {
+        if (job == null) {
             return false;
         }
 
         String jobUnitKey = scheduleUnitKey + "_" + job.getName();
         JobUnit jobUnit = jobUnitMap.get(jobUnitKey);
         if (jobUnit == null) {
-            jobUnit = new JobUnit(jobUnitKey);
+            jobUnit = new JobUnit(jobUnitKey, threadPoolCount);
+            jobUnitMap.put(jobUnitKey, jobUnit);
         }
 
-        if (jobUnit.addJob(job.getName(),
-                scheduledThreadPoolExecutor.scheduleAtFixedRate(
-                        job, job.getInterval(), job.getInterval(), job.getTimeUnit()))) {
+        if (jobUnit.start(job)) {
             logger.debug("({}) Job is added. (name={}, interval={}({}))",
                     scheduleUnitKey, job.getName(), job.getInterval(), job.getTimeUnit().name()
             );
-
-            jobUnitMap.put(jobUnitKey, jobUnit);
             return true;
         }
 
@@ -106,10 +91,6 @@ public class ScheduleUnit {
         return scheduleUnitKey;
     }
 
-    public long getCreatedTime() {
-        return createdTime;
-    }
-
     public int getThreadCount() {
         return threadCount;
     }
@@ -120,7 +101,6 @@ public class ScheduleUnit {
     public String toString() {
         return "ScheduleUnit{" +
                 "key='" + scheduleUnitKey + '\'' +
-                ", createdTime=" + createdTime +
                 ", threadCount=" + threadCount +
                 '}';
     }

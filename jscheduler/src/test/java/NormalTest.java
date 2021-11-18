@@ -15,14 +15,13 @@ public class NormalTest {
         String scheduleKey = "THREAD_RTP";
         String jobKey = "SEND_RTP_JOB";
 
-        // 1) Init job
         ScheduleManager scheduleManager = ScheduleManager.getInstance();
-        if (scheduleManager.initJob(scheduleKey, 100)) {
-            logger.debug("Success init job. (key={})", scheduleKey);
-        }
+
+        // 1) Init job
+        scheduleManager.initJob(scheduleKey, 10);
 
         // 2) Add job
-        if (scheduleManager.addJob(scheduleKey, new SendRtpJob(jobKey, 1000, TimeUnit.MILLISECONDS))) {
+        if (scheduleManager.addJob(scheduleKey, new SendRtpJob(jobKey, 0, 1000, TimeUnit.MILLISECONDS))) {
             logger.debug("Success add job. (key={})", scheduleKey);
         }
 

@@ -10,8 +10,8 @@ public class SendRtpJob extends Job {
 
     private static final Logger logger = LoggerFactory.getLogger(SendRtpJob.class);
 
-    public SendRtpJob(String name, int interval, TimeUnit timeUnit) {
-        super(name, interval, timeUnit);
+    public SendRtpJob(String name, int initialDelay, int interval, TimeUnit timeUnit) {
+        super(name, initialDelay, interval, timeUnit);
     }
 
     @Override
