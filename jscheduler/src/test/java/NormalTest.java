@@ -54,7 +54,7 @@ public class NormalTest {
 
         // 3) Wait for processing the job
         try {
-            Thread.sleep(3000);
+            Thread.sleep(10000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

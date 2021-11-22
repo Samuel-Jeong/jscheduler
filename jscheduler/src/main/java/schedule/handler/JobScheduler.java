@@ -52,25 +52,36 @@ public class JobScheduler {
                 }
 
                 if (job.getIsFinished()) {
-                    logger.debug("[{}({})]-[{}] is finished.", ownerName, curExecutorIndex, job.getName());
+                    if (logger.isTraceEnabled()) {
+                        logger.trace("[{}({})]-[{}] is finished.", ownerName, curExecutorIndex, job.getName());
+                    }
                     continue;
                 }
 
                 if (!job.isLasted() && job.decCurRemainRunCount() <= 0) {
-                    logger.trace("[{}({})]-[{}] is finished.", curExecutorIndex, ownerName, job.getName());
+                    if (logger.isTraceEnabled()) {
+                        logger.trace("[{}({})]-[{}] is finished.", curExecutorIndex, ownerName, job.getName());
+                    }
                     continue;
                 }
 
                 jobExecutors[curExecutorIndex].addJob(job);
-                logger.debug("[{}({})]-[{}]: is running. ({})", ownerName, curExecutorIndex, job.getName(), job);
+                if (logger.isTraceEnabled()) {
+                    logger.trace("[{}({})]-[{}]: is running. ({})", ownerName, curExecutorIndex, job.getName(), job);
+                }
 
                 int interval = job.getInterval();
                 if (interval > 0) {
                     new Thread(new FutureScheduler(interval, job)).start();
-                    logger.trace("[{}({})]-[{}] is scheduled.", ownerName, curExecutorIndex, job.getName());
+                    if (logger.isTraceEnabled()) {
+                        logger.trace("[{}({})]-[{}] is scheduled.", ownerName, curExecutorIndex, job.getName());
+                    }
                 }
 
-                curExecutorIndex %= poolSize;
+                curExecutorIndex++;
+                if (curExecutorIndex >= poolSize) {
+                    curExecutorIndex = 0;
+                }
             } catch (Exception e) {
                 break;
             }

@@ -16,7 +16,7 @@ public class HaHandler extends Job {
 
     @Override
     public void run() {
-        logger.debug("HA: ");
+        logger.debug("HA: ACTIVE");
     }
 
 }
