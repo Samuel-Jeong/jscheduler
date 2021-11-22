@@ -55,7 +55,7 @@ public class ScheduleManager {
         return cloneMap;
     }
 
-    private ScheduleUnit addScheduleUnit(String key, int threadCount) {
+    private ScheduleUnit addScheduleUnit(String key, int poolSize, int queueSize) {
         if (key == null) {
             return null;
         }
@@ -66,7 +66,8 @@ public class ScheduleManager {
             scheduleUnitMap.putIfAbsent(key,
                     new ScheduleUnit(
                             key,
-                            threadCount
+                            poolSize,
+                            queueSize
                     )
             );
             return scheduleUnitMap.get(key);
@@ -78,16 +79,15 @@ public class ScheduleManager {
         }
     }
 
-    private ScheduleUnit removeScheduleUnit(String key) {
-        if (key == null) { return null; }
+    private void removeScheduleUnit(String key) {
+        if (key == null) { return; }
 
         try {
             scheduleUnitMapLock.lock();
 
-            return scheduleUnitMap.remove(key);
+            scheduleUnitMap.remove(key);
         } catch (Exception e) {
             logger.warn("Fail to delete the schedule unit map.", e);
-            return null;
         } finally {
             scheduleUnitMapLock.unlock();
         }
@@ -114,11 +114,11 @@ public class ScheduleManager {
 
     ////////////////////////////////////////////////////////////////////////////////
 
-    public boolean initJob(String key, int threadPoolCount) {
-        return addScheduleUnit(key, threadPoolCount) != null;
+    public boolean initJob(String key, int totalThreadPoolSize, int priorityBlockingQueueSize) {
+        return addScheduleUnit(key, totalThreadPoolSize, priorityBlockingQueueSize) != null;
     }
 
-    public boolean addJob(String key, Job job, int poolSize, int queueSize, boolean isPriorityScheduled) {
+    public boolean startJob(String key, Job job) {
         if (key == null) { return false; }
 
         ScheduleUnit scheduleUnit = getScheduleUnit(key);
@@ -126,28 +126,26 @@ public class ScheduleManager {
             return false;
         }
 
-        return scheduleUnit.addJobUnit(job, poolSize, queueSize, isPriorityScheduled);
+        return scheduleUnit.start(job);
     }
 
-    public boolean removeJob(String scheduleUnitKey, Job job) {
-        if (scheduleUnitKey == null || job == null) { return false; }
-
+    public void stopJob(String scheduleUnitKey, Job job) {
         ScheduleUnit scheduleUnit = getScheduleUnit(scheduleUnitKey);
         if (scheduleUnit == null) {
-            return false;
+            return;
         }
 
-        return scheduleUnit.removeJobUnit(scheduleUnitKey, job);
+        scheduleUnit.stop(job);
     }
 
-    public boolean stopJob(String scheduleUnitKey) {
+    public void stopAll(String scheduleUnitKey) {
         ScheduleUnit scheduleUnit = getScheduleUnit(scheduleUnitKey);
         if (scheduleUnit == null) {
-            return false;
+            return;
         }
 
-        scheduleUnit.stop();
-        return removeScheduleUnit(scheduleUnitKey) != null;
+        scheduleUnit.stopAll();
+        removeScheduleUnit(scheduleUnitKey);
     }
 
     ////////////////////////////////////////////////////////////////////////////////

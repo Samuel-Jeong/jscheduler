@@ -1,3 +1,5 @@
+import example.HaHandler;
+import example.RecvRtpJob;
 import example.SendRtpJob;
 import job.base.Job;
 import org.junit.Test;
@@ -13,18 +15,41 @@ public class NormalTest {
 
     @Test
     public void test() {
-        String scheduleKey = "THREAD_RTP";
-        String jobKey = "SEND_RTP_JOB";
+        String scheduleKey = "NORMAL_TEST";
+        String sendRtpJobKey = "SEND_RTP_JOB";
+        String haHandlerJobKey = "HA_HANDLER";
+        String recvRtpJobKey = "RECV_RTP_JOB";
 
         ScheduleManager scheduleManager = ScheduleManager.getInstance();
 
         // 1) Init job
-        scheduleManager.initJob(scheduleKey, 10);
+        if (scheduleManager.initJob(scheduleKey, 10, 10)) {
+            logger.debug("Success to initialize the schedule unit. (key={})", scheduleKey);
+        }
 
         // 2) Add job
-        Job sendRtpJob = new SendRtpJob(jobKey, 0, 1000, TimeUnit.MILLISECONDS, 0);
-        if (scheduleManager.addJob(scheduleKey, sendRtpJob, 10, 10, false)) {
-            logger.debug("Success add job. (key={})", scheduleKey);
+        Job sendRtpJob = new SendRtpJob(sendRtpJobKey,
+                0, 1000, TimeUnit.MILLISECONDS,
+                5, 0, true
+        );
+        if (scheduleManager.startJob(scheduleKey, sendRtpJob)) {
+            logger.debug("Success to add the job. (key={}, sendRtpJob={})", scheduleKey, sendRtpJob);
+        }
+
+        Job haHandlerJob = new HaHandler(haHandlerJobKey,
+                0, 1000, TimeUnit.MILLISECONDS,
+                1, 0, true
+        );
+        if (scheduleManager.startJob(scheduleKey, haHandlerJob)) {
+            logger.debug("Success to add the job. (key={}, haHandlerJob={})", scheduleKey, haHandlerJob);
+        }
+
+        Job recvRtpJob = new RecvRtpJob(recvRtpJobKey,
+                0, 1000, TimeUnit.MILLISECONDS,
+                5, 0, true
+        );
+        if (scheduleManager.startJob(scheduleKey, recvRtpJob)) {
+            logger.debug("Success to add the job. (key={}, recvRtpJob={})", scheduleKey, recvRtpJob);
         }
 
         // 3) Wait for processing the job
@@ -34,14 +59,19 @@ public class NormalTest {
             e.printStackTrace();
         }
 
-        // 4) Remove job
-        if (scheduleManager.removeJob(scheduleKey, sendRtpJob)) {
-            logger.debug("Success remove job. (scheduleKey={}, jobKey={})", scheduleKey, jobKey);
-        }
+        // 4) Stop job
+        scheduleManager.stopJob(scheduleKey, sendRtpJob);
+        scheduleManager.stopJob(scheduleKey, haHandlerJob);
+        scheduleManager.stopJob(scheduleKey, recvRtpJob);
 
-        // 5) Stop job
-        if (scheduleManager.stopJob(scheduleKey)) {
-            logger.debug("Success stop job. (key={})", scheduleKey);
+        // 5) Stop all
+        scheduleManager.stopAll(scheduleKey);
+
+        // 6) Wait for processing the job
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
     }
 

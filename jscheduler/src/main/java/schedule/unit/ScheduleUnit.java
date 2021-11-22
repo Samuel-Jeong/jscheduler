@@ -1,101 +1,50 @@
 package schedule.unit;
 
 import job.base.Job;
-import job.JobUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import schedule.handler.NonPriorityJobHandler;
-import schedule.handler.PriorityJobHandler;
-
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import schedule.handler.JobScheduler;
 
 public class ScheduleUnit {
 
     private static final Logger logger = LoggerFactory.getLogger(ScheduleUnit.class);
 
     public static final int DEFAULT_THREAD_COUNT = 5;
+    private final long createdTime = System.currentTimeMillis();
 
     private final String scheduleUnitKey;
-    private final int threadCount; // JobUnit count
+
+    private final int poolSize; // Thread pool size
+    private final JobScheduler jobScheduler;
 
     ////////////////////////////////////////////////////////////////////////////////
 
-    private final Map<String, JobUnit> jobUnitMap;
-
-    ////////////////////////////////////////////////////////////////////////////////
-
-    public ScheduleUnit(String key, int threadCount) {
+    public ScheduleUnit(String key, int poolSize, int queueSize) {
         this.scheduleUnitKey = key;
 
-        if (threadCount > 0) {
-            this.threadCount = threadCount;
+        if (poolSize > 0) {
+            this.poolSize = poolSize;
         } else {
-            this.threadCount = DEFAULT_THREAD_COUNT;
+            this.poolSize = DEFAULT_THREAD_COUNT;
         }
 
-        jobUnitMap = new ConcurrentHashMap<>(this.threadCount);
+        jobScheduler = new JobScheduler(scheduleUnitKey, poolSize, queueSize);
     }
 
     ////////////////////////////////////////////////////////////////////////////////
 
-    public void stop() {
-        for (JobUnit jobUnit : jobUnitMap.values()) {
-            jobUnit.stopAll();
-        }
+    public boolean start(Job job) {
+        if (job == null) { return false; }
+        return jobScheduler.schedule(job);
     }
 
-    ////////////////////////////////////////////////////////////////////////////////
-
-    public boolean addJobUnit(Job job, int poolSize, int dataStructureSize, boolean isPriorityScheduled) {
-        if (job == null) {
-            return false;
-        }
-
-        String jobUnitKey = scheduleUnitKey + "_" + job.getName();
-        JobUnit jobUnit = jobUnitMap.get(jobUnitKey);
-        if (jobUnit == null) {
-            if (isPriorityScheduled) {
-                jobUnit = new JobUnit(jobUnitKey,
-                        new PriorityJobHandler(
-                                poolSize, dataStructureSize
-                        )
-                );
-            } else {
-                jobUnit = new JobUnit(jobUnitKey,
-                        new NonPriorityJobHandler(
-                                poolSize,
-                                dataStructureSize
-                        )
-                );
-            }
-            jobUnitMap.put(jobUnitKey, jobUnit);
-        }
-
-        if (jobUnit.start(job)) {
-            logger.debug("({}) Job is added. (job={})", scheduleUnitKey, job);
-            return true;
-        }
-
-        return false;
+    public void stop(Job job) {
+        if (job == null) { return; }
+        jobScheduler.stop(job);
     }
 
-    public boolean removeJobUnit(String scheduleUnitKey, Job job) {
-        if (scheduleUnitKey == null || job == null) {
-            return false;
-        }
-
-        String jobUnitKey = this.scheduleUnitKey + "_" + job.getName();
-        JobUnit jobUnit = jobUnitMap.get(jobUnitKey);
-        if (jobUnit == null) {
-            return false;
-        }
-
-        if (jobUnit.stop(job)) {
-            logger.debug("[{}] Job is canceled. (job={})", this.scheduleUnitKey, job);
-        }
-
-        return jobUnitMap.remove(jobUnitKey) != null;
+    public void stopAll() {
+        jobScheduler.stopAll();
     }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -104,8 +53,12 @@ public class ScheduleUnit {
         return scheduleUnitKey;
     }
 
-    public int getThreadCount() {
-        return threadCount;
+    public int getPoolSize() {
+        return poolSize;
+    }
+
+    public long getCreatedTime() {
+        return createdTime;
     }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -114,7 +67,7 @@ public class ScheduleUnit {
     public String toString() {
         return "ScheduleUnit{" +
                 "key='" + scheduleUnitKey + '\'' +
-                ", threadCount=" + threadCount +
+                ", threadCount=" + poolSize +
                 '}';
     }
 }
