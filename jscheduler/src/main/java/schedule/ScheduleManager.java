@@ -1,6 +1,6 @@
 package schedule;
 
-import job.Job;
+import job.base.Job;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import schedule.unit.ScheduleUnit;
@@ -118,7 +118,7 @@ public class ScheduleManager {
         return addScheduleUnit(key, threadPoolCount) != null;
     }
 
-    public boolean addJob(String key, Job job) {
+    public boolean addJob(String key, Job job, int poolSize, int queueSize, boolean isPriorityScheduled) {
         if (key == null) { return false; }
 
         ScheduleUnit scheduleUnit = getScheduleUnit(key);
@@ -126,18 +126,18 @@ public class ScheduleManager {
             return false;
         }
 
-        return scheduleUnit.addJobUnit(job, 1);
+        return scheduleUnit.addJobUnit(job, poolSize, queueSize, isPriorityScheduled);
     }
 
-    public boolean removeJob(String scheduleUnitKey, String jobKey) {
-        if (scheduleUnitKey == null || jobKey == null) { return false; }
+    public boolean removeJob(String scheduleUnitKey, Job job) {
+        if (scheduleUnitKey == null || job == null) { return false; }
 
         ScheduleUnit scheduleUnit = getScheduleUnit(scheduleUnitKey);
         if (scheduleUnit == null) {
             return false;
         }
 
-        return scheduleUnit.removeJobUnit(scheduleUnitKey, jobKey);
+        return scheduleUnit.removeJobUnit(scheduleUnitKey, job);
     }
 
     public boolean stopJob(String scheduleUnitKey) {

@@ -1,9 +1,11 @@
 package schedule.unit;
 
-import job.Job;
+import job.base.Job;
 import job.JobUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import schedule.handler.NonPriorityJobHandler;
+import schedule.handler.PriorityJobHandler;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -45,7 +47,7 @@ public class ScheduleUnit {
 
     ////////////////////////////////////////////////////////////////////////////////
 
-    public boolean addJobUnit(Job job, int threadPoolCount) {
+    public boolean addJobUnit(Job job, int poolSize, int dataStructureSize, boolean isPriorityScheduled) {
         if (job == null) {
             return false;
         }
@@ -53,33 +55,44 @@ public class ScheduleUnit {
         String jobUnitKey = scheduleUnitKey + "_" + job.getName();
         JobUnit jobUnit = jobUnitMap.get(jobUnitKey);
         if (jobUnit == null) {
-            jobUnit = new JobUnit(jobUnitKey, threadPoolCount);
+            if (isPriorityScheduled) {
+                jobUnit = new JobUnit(jobUnitKey,
+                        new PriorityJobHandler(
+                                poolSize, dataStructureSize
+                        )
+                );
+            } else {
+                jobUnit = new JobUnit(jobUnitKey,
+                        new NonPriorityJobHandler(
+                                poolSize,
+                                dataStructureSize
+                        )
+                );
+            }
             jobUnitMap.put(jobUnitKey, jobUnit);
         }
 
         if (jobUnit.start(job)) {
-            logger.debug("({}) Job is added. (name={}, interval={}({}))",
-                    scheduleUnitKey, job.getName(), job.getInterval(), job.getTimeUnit().name()
-            );
+            logger.debug("({}) Job is added. (job={})", scheduleUnitKey, job);
             return true;
         }
 
         return false;
     }
 
-    public boolean removeJobUnit(String scheduleUnitKey, String jobKey) {
-        if (scheduleUnitKey == null || jobKey == null) {
+    public boolean removeJobUnit(String scheduleUnitKey, Job job) {
+        if (scheduleUnitKey == null || job == null) {
             return false;
         }
 
-        String jobUnitKey = this.scheduleUnitKey + "_" + jobKey;
+        String jobUnitKey = this.scheduleUnitKey + "_" + job.getName();
         JobUnit jobUnit = jobUnitMap.get(jobUnitKey);
         if (jobUnit == null) {
             return false;
         }
 
-        if (jobUnit.stop(jobKey)) {
-            logger.debug("[{}] Job is canceled. (jobKey={})", this.scheduleUnitKey, jobKey);
+        if (jobUnit.stop(job)) {
+            logger.debug("[{}] Job is canceled. (job={})", this.scheduleUnitKey, job);
         }
 
         return jobUnitMap.remove(jobUnitKey) != null;

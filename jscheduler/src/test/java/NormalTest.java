@@ -1,4 +1,5 @@
 import example.SendRtpJob;
+import job.base.Job;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +22,8 @@ public class NormalTest {
         scheduleManager.initJob(scheduleKey, 10);
 
         // 2) Add job
-        if (scheduleManager.addJob(scheduleKey, new SendRtpJob(jobKey, 0, 1000, TimeUnit.MILLISECONDS))) {
+        Job sendRtpJob = new SendRtpJob(jobKey, 0, 1000, TimeUnit.MILLISECONDS, 0);
+        if (scheduleManager.addJob(scheduleKey, sendRtpJob, 10, 10, false)) {
             logger.debug("Success add job. (key={})", scheduleKey);
         }
 
@@ -33,7 +35,7 @@ public class NormalTest {
         }
 
         // 4) Remove job
-        if (scheduleManager.removeJob(scheduleKey, jobKey)) {
+        if (scheduleManager.removeJob(scheduleKey, sendRtpJob)) {
             logger.debug("Success remove job. (scheduleKey={}, jobKey={})", scheduleKey, jobKey);
         }
 
