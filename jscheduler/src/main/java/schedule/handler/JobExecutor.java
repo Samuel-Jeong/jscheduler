@@ -34,7 +34,7 @@ public class JobExecutor {
     public void run() {
         while(isAlive) {
             try {
-                Job job = jobBuffer.poll();
+                Job job = jobBuffer.take();
                 if (job == null) {
                     continue;
                 }

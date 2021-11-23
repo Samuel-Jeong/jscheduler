@@ -47,12 +47,12 @@ public class JobScheduler {
     private void run() {
         while (isAlive) {
             try {
-                // dequeue 후 객체 null 여부에 상관없이 기다리지 않음
-                // <-> take(): dequeue 후 객체가 null 이 아닐 때까지 기다림
-                Job job = priorityQueue.poll();
-                if (job == null) {
+                // poll(): dequeue 후 객체 null 여부에 상관없이 기다리지 않음
+                // take(): dequeue 후 객체가 null 이 아닐 때까지 기다림
+                Job job = priorityQueue.take();
+                /*if (job == null) {
                     continue;
-                }
+                }*/
 
                 if (job.getIsFinished()) {
                     if (logger.isTraceEnabled()) {
