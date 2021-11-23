@@ -1,6 +1,6 @@
 package schedule.unit;
 
-import job.base.Job;
+import job.Job;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import schedule.handler.JobScheduler;

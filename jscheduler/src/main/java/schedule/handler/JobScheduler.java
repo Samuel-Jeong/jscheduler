@@ -1,8 +1,9 @@
 package schedule.handler;
 
-import job.base.Job;
+import job.Job;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import util.RedBlackTree;
 
 import java.util.Comparator;
 import java.util.concurrent.*;
@@ -17,9 +18,11 @@ public class JobScheduler {
     private final int poolSize;
     private final ExecutorService priorityJobSelector;
     private final JobExecutor[] jobExecutors; // Round-Robin executor selection
-    private final PriorityBlockingQueue<Job> priorityQueue;
     private int curExecutorIndex = 0;
     private boolean isAlive = true;
+
+    private final RedBlackTree redBlackTree = new RedBlackTree();
+    private final PriorityBlockingQueue<Job> priorityQueue;
 
     ////////////////////////////////////////////////////////////////////////////////
 
@@ -112,6 +115,8 @@ public class JobScheduler {
         for (int i = 0; i < poolSize; i++) {
             jobExecutors[i].stop();
         }
+
+        logger.trace("[{}({})] is finished.", ownerName, curExecutorIndex);
     }
 
     ////////////////////////////////////////////////////////////////////////////////

@@ -1,4 +1,4 @@
-package job.base;
+package job;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -17,6 +17,8 @@ public abstract class Job implements Runnable {
     private final boolean isLasted;
     private final AtomicBoolean isFinished = new AtomicBoolean(false);
 
+    ////////////////////////////////////////////////////////////////////////////////
+
     public Job(String name, int initialDelay, int interval, TimeUnit timeUnit, int priority, int totalRunCount, boolean isLasted) {
         this.name = name;
         this.initialDelay = initialDelay;
@@ -27,6 +29,8 @@ public abstract class Job implements Runnable {
         this.curRemainRunCount.set(totalRunCount);
         this.isLasted = isLasted;
     }
+
+    ////////////////////////////////////////////////////////////////////////////////
 
     public int getPriority() {
         return priority;
@@ -79,6 +83,8 @@ public abstract class Job implements Runnable {
     public void setIsFinished(boolean isFinished) {
         this.isFinished.set(isFinished);
     }
+
+    ////////////////////////////////////////////////////////////////////////////////
 
     @Override
     public String toString() {

@@ -1,6 +1,6 @@
 package schedule.handler;
 
-import job.base.Job;
+import job.Job;
 import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
