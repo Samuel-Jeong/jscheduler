@@ -2,9 +2,11 @@
 
 ## STRUCTURE
 
-![스크린샷 2021-11-18 오후 3 32 56](https://user-images.githubusercontent.com/37236920/142364567-f0601ff6-a063-466a-afe3-85db50a4ea8e.png)
+![스크린샷 2021-11-23 오전 10 52 55](https://user-images.githubusercontent.com/37236920/142960448-23bcddfe-d379-42cd-8006-1096234ce877.png)
   
-![스크린샷 2021-11-18 오후 3 34 06](https://user-images.githubusercontent.com/37236920/142364600-fe53e03e-dcca-427b-acc4-80470b321899.png)
+![스크린샷 2021-11-23 오전 10 53 14](https://user-images.githubusercontent.com/37236920/142960473-6a48bd8d-2ae5-4631-93fe-796dbf94f275.png)
   
-![스크린샷 2021-11-18 오후 3 34 22](https://user-images.githubusercontent.com/37236920/142364650-7f5917df-eedf-4f93-8e6b-bb9a742ac9bf.png)
+![스크린샷 2021-11-23 오전 10 53 32](https://user-images.githubusercontent.com/37236920/142960492-7b25e0d7-5ef7-4afe-998e-78053f9c119c.png)
+  
+![스크린샷 2021-11-23 오전 10 53 50](https://user-images.githubusercontent.com/37236920/142960511-3c11c7fc-8100-4e87-afae-3d31824fafbd.png)
   
