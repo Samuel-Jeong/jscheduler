@@ -2,7 +2,7 @@
 
 ## STRUCTURE
 
-![스크린샷 2021-11-23 오전 10 52 55](https://user-images.githubusercontent.com/37236920/142960448-23bcddfe-d379-42cd-8006-1096234ce877.png)
+![스크린샷 2021-11-23 오전 10 57 26](https://user-images.githubusercontent.com/37236920/142960789-f5d016e9-0226-43e5-a6e2-e0d938297a9a.png)
   
 ![스크린샷 2021-11-23 오전 10 53 14](https://user-images.githubusercontent.com/37236920/142960473-6a48bd8d-2ae5-4631-93fe-796dbf94f275.png)
   
