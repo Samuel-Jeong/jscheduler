@@ -61,7 +61,7 @@ public class JobScheduler {
                     continue;
                 }
 
-                if (!job.isLasted() && job.decCurRemainRunCount() <= 0) {
+                if (!job.isLasted() && job.decCurRemainRunCount() < 0) {
                     if (logger.isTraceEnabled()) {
                         logger.trace("[{}({})]-[{}] is finished.", curExecutorIndex, ownerName, job.getName());
                     }
