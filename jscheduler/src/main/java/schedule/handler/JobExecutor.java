@@ -2,65 +2,69 @@ package schedule.handler;
 
 import job.Job;
 import org.apache.commons.lang3.concurrent.BasicThreadFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import util.ConcurrentCyclicFIFO;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.Comparator;
+import java.util.concurrent.PriorityBlockingQueue;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
 
 public class JobExecutor {
 
-    private static final Logger logger = LoggerFactory.getLogger(JobExecutor.class);
-
     private final int index;
-    private final ConcurrentCyclicFIFO<Job> jobBuffer = new ConcurrentCyclicFIFO<>();
-    private final ExecutorService executorService;
-    private boolean isAlive = true;
+
+    private final PriorityBlockingQueue<Job> priorityQueue;
+    private final ScheduledThreadPoolExecutor scheduledThreadPoolExecutor;
 
     ////////////////////////////////////////////////////////////////////////////////
 
-    public JobExecutor(int index) {
+    public JobExecutor(int index, int queueSize) {
         this.index = index;
 
+        priorityQueue = new PriorityBlockingQueue<>(
+                queueSize,
+                Comparator.comparing(Job::getPriority)
+        );
+
         ThreadFactory threadFactory = new BasicThreadFactory.Builder().namingPattern("JobExecutor" + "-" + index).build();
-        executorService = Executors.newFixedThreadPool(1, threadFactory);
-        executorService.execute(this::run);
+        scheduledThreadPoolExecutor = new ScheduledThreadPoolExecutor(1, threadFactory);
+        scheduledThreadPoolExecutor.scheduleAtFixedRate(
+                new Worker(),
+                0,
+                1,
+                TimeUnit.MILLISECONDS
+        );
     }
 
     ////////////////////////////////////////////////////////////////////////////////
 
-    public void run() {
-        while(isAlive) {
+    private class Worker implements Runnable {
+
+        @Override
+        public void run() {
             try {
-                Job job = jobBuffer.take();
+                // poll(): dequeue 후 객체 null 여부에 상관없이 기다리지 않음
+                // take(): dequeue 후 객체가 null 이 아닐 때까지 기다림
+                Job job = priorityQueue.poll();
                 if (job == null) {
-                    continue;
+                    return;
                 }
 
                 job.run();
-
-                if (logger.isTraceEnabled()) {
-                    logger.trace("[{}]-[{}]: get data ({})", index, job.getName(), job);
-                }
             } catch (Exception e) {
-                break;
+                // ignore
             }
         }
+
     }
 
     public void stop() {
-        isAlive = false;
-        executorService.shutdown();
-        jobBuffer.clear();
+        scheduledThreadPoolExecutor.shutdown();
+        priorityQueue.clear();
     }
 
     public void addJob(Job job) {
-        jobBuffer.offer(job);
-        if (logger.isTraceEnabled()) {
-            logger.trace("[{}] add data ({})", index, job);
-        }
+        priorityQueue.offer(job);
     }
 
     ////////////////////////////////////////////////////////////////////////////////

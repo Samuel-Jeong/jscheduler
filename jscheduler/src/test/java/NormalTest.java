@@ -30,7 +30,7 @@ public class NormalTest {
         // 2) Add job
         Job sendRtpJob = new SendRtpJob(sendRtpJobKey,
                 0, 1000, TimeUnit.MILLISECONDS,
-                5, 0, true
+                1, 0, true
         );
         if (scheduleManager.startJob(scheduleKey, sendRtpJob)) {
             logger.debug("Success to add the job. (key={}, sendRtpJob={})", scheduleKey, sendRtpJob);
@@ -38,7 +38,7 @@ public class NormalTest {
 
         Job haHandlerJob = new HaHandler(haHandlerJobKey,
                 0, 1000, TimeUnit.MILLISECONDS,
-                1, 0, true
+                3, 0, true
         );
         if (scheduleManager.startJob(scheduleKey, haHandlerJob)) {
             logger.debug("Success to add the job. (key={}, haHandlerJob={})", scheduleKey, haHandlerJob);
@@ -53,8 +53,9 @@ public class NormalTest {
         }
 
         // 3) Wait for processing the job
+        TimeUnit msTimeUnit = TimeUnit.MILLISECONDS;
         try {
-            Thread.sleep(10000);
+            msTimeUnit.sleep(20000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -66,13 +67,6 @@ public class NormalTest {
 
         // 5) Stop all
         scheduleManager.stopAll(scheduleKey);
-
-        // 6) Wait for processing the job
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
     }
 
 }

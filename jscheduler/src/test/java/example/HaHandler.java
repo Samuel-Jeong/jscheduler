@@ -16,7 +16,7 @@ public class HaHandler extends Job {
 
     @Override
     public void run() {
-        logger.debug("HA: ACTIVE");
+        logger.debug("HA: THREAD={}", Thread.activeCount());
     }
 
 }
