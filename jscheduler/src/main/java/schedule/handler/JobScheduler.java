@@ -17,6 +17,7 @@ public class JobScheduler {
     private final int poolSize;
     private final JobExecutor[] jobExecutors; // Round-Robin executor selection
     private int curExecutorIndex = 0;
+    private final Timer timer = new Timer(true);
 
     ////////////////////////////////////////////////////////////////////////////////
 
@@ -35,7 +36,6 @@ public class JobScheduler {
     public boolean schedule(Job job) {
         int initialDelay = job.getInitialDelay();
         if (initialDelay > 0) {
-            Timer timer = new Timer();
             timer.scheduleAtFixedRate(new FutureScheduler(curExecutorIndex, job, timer), initialDelay, initialDelay);
             return true;
         }
@@ -57,7 +57,6 @@ public class JobScheduler {
 
         int interval = job.getInterval();
         if (interval > 0) {
-            Timer timer = new Timer();
             timer.scheduleAtFixedRate(new FutureScheduler(curExecutorIndex, job, timer), interval, interval);
         }
 
@@ -109,7 +108,6 @@ public class JobScheduler {
 
             int interval = job.getInterval();
             if (interval > 0) {
-                Timer timer = new Timer();
                 long intervalGap = System.currentTimeMillis() - this.scheduledExecutionTime();
                 if (intervalGap > 0) {
                     timer.scheduleAtFixedRate(new FutureScheduler(newIndex, job, timer), interval - intervalGap, interval);
@@ -118,7 +116,7 @@ public class JobScheduler {
                 }
             }
 
-            timer.cancel();
+            this.cancel();
         }
 
     }
