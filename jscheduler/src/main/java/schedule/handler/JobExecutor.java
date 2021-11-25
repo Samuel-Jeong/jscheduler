@@ -26,7 +26,7 @@ public class JobExecutor {
                 Comparator.comparing(Job::getPriority)
         );
 
-        ThreadFactory threadFactory = new BasicThreadFactory.Builder().namingPattern("JobExecutor" + "-" + index).build();
+        ThreadFactory threadFactory = new BasicThreadFactory.Builder().namingPattern("JobExecutor" + "-" + index).daemon(true).build();
         scheduledThreadPoolExecutor = new ScheduledThreadPoolExecutor(1, threadFactory);
         scheduledThreadPoolExecutor.scheduleAtFixedRate(
                 new Worker(),

@@ -15,6 +15,8 @@ public class JobScheduler {
 
     private final String ownerName;
     private final int poolSize;
+    private final int queueSize;
+
     private final JobExecutor[] jobExecutors; // Round-Robin executor selection
     private int curExecutorIndex = 0;
     private final Timer timer = new Timer(true);
@@ -24,6 +26,7 @@ public class JobScheduler {
     public JobScheduler(String ownerName, int poolSize, int queueSize) {
         this.ownerName = ownerName;
         this.poolSize = poolSize;
+        this.queueSize = queueSize;
 
         jobExecutors = new JobExecutor[poolSize];
         for (int i = 0; i < poolSize; i++) {
@@ -40,21 +43,11 @@ public class JobScheduler {
             return true;
         }
 
-        if (job.getIsFinished()) {
+        if (isJobFinished(job)) {
             return false;
         }
 
-        if (!job.isLasted() && job.decCurRemainRunCount() < 0) {
-            return false;
-        }
-
-        jobExecutors[curExecutorIndex].addJob(job);
-
-        curExecutorIndex++;
-        if (curExecutorIndex >= poolSize) {
-            curExecutorIndex = 0;
-        }
-
+        curExecutorIndex = addJobToExecutor(curExecutorIndex, job);
         int interval = job.getInterval();
         if (interval > 0) {
             timer.scheduleAtFixedRate(new FutureScheduler(curExecutorIndex, job, timer), interval, interval);
@@ -63,16 +56,39 @@ public class JobScheduler {
         return true;
     }
 
-    public void stop(Job job) {
+    public void cancel(Job job) {
         job.setIsFinished(true);
     }
 
-    public void stopAll() {
+    public void stop() {
         for (int i = 0; i < poolSize; i++) {
             jobExecutors[i].stop();
         }
 
-        logger.debug("[{}({})] is finished.", ownerName, curExecutorIndex);
+        timer.cancel(); // daemon 이어도 안전하게 종료
+        logger.debug("[{}] is finished.", ownerName);
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////
+
+    private int addJobToExecutor(int index, Job job) {
+        jobExecutors[index].addJob(job);
+
+        index++;
+        if (index >= poolSize) {
+            index = 0;
+        }
+
+        return index;
+    }
+
+    private boolean isJobFinished(Job job) {
+        if (job == null) {
+            return true;
+        }
+
+        return job.getIsFinished() ||
+                (!job.isLasted() && (job.decCurRemainRunCount() < 0));
     }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -91,21 +107,11 @@ public class JobScheduler {
 
         @Override
         public void run() {
-            if (job.getIsFinished()) {
+            if (isJobFinished(job)) {
                 return;
             }
 
-            if (!job.isLasted() && job.decCurRemainRunCount() < 0) {
-                return;
-            }
-
-            jobExecutors[index].addJob(job);
-
-            int newIndex = index + 1;
-            if (newIndex >= poolSize) {
-                newIndex = 0;
-            }
-
+            int newIndex = addJobToExecutor(index, job);
             int interval = job.getInterval();
             if (interval > 0) {
                 long intervalGap = System.currentTimeMillis() - this.scheduledExecutionTime();
@@ -121,4 +127,14 @@ public class JobScheduler {
 
     }
 
+    ////////////////////////////////////////////////////////////////////////////////
+
+    @Override
+    public String toString() {
+        return "JobScheduler{" +
+                "ownerName='" + ownerName + '\'' +
+                ", poolSize=" + poolSize +
+                ", queueSize=" + queueSize +
+                '}';
+    }
 }

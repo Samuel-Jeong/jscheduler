@@ -40,11 +40,11 @@ public class ScheduleUnit {
 
     public void stop(Job job) {
         if (job == null) { return; }
-        jobScheduler.stop(job);
+        jobScheduler.cancel(job);
     }
 
     public void stopAll() {
-        jobScheduler.stopAll();
+        jobScheduler.stop();
     }
 
     ////////////////////////////////////////////////////////////////////////////////

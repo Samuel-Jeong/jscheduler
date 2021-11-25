@@ -55,7 +55,7 @@ public class NormalTest {
         // 3) Wait for processing the job
         TimeUnit msTimeUnit = TimeUnit.MILLISECONDS;
         try {
-            msTimeUnit.sleep(20000);
+            msTimeUnit.sleep(5000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
