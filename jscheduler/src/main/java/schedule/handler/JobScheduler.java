@@ -3,9 +3,9 @@ package schedule.handler;
 import job.Job;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import schedule.unit.FutureScheduler;
 
 import java.util.Timer;
-import java.util.TimerTask;
 
 public class JobScheduler {
 
@@ -19,7 +19,6 @@ public class JobScheduler {
 
     private final JobExecutor[] jobExecutors; // Round-Robin executor selection
     private int curExecutorIndex = 0;
-    private final Timer timer = new Timer(true);
 
     ////////////////////////////////////////////////////////////////////////////////
 
@@ -37,20 +36,22 @@ public class JobScheduler {
     ////////////////////////////////////////////////////////////////////////////////
 
     public boolean schedule(Job job) {
-        int initialDelay = job.getInitialDelay();
-        if (initialDelay > 0) {
-            timer.scheduleAtFixedRate(new FutureScheduler(curExecutorIndex, job, timer), initialDelay, initialDelay);
-            return true;
+        if (!job.getIsInitialFinished()) {
+            int initialDelay = job.getInitialDelay();
+            if (initialDelay > 0) {
+                job.initialSchedule();
+                return true;
+            }
         }
 
         if (isJobFinished(job)) {
             return false;
         }
 
-        curExecutorIndex = addJobToExecutor(curExecutorIndex, job);
+        addJobToExecutor(job);
         int interval = job.getInterval();
         if (interval > 0) {
-            timer.scheduleAtFixedRate(new FutureScheduler(curExecutorIndex, job, timer), interval, interval);
+            job.schedule();
         }
 
         return true;
@@ -65,24 +66,21 @@ public class JobScheduler {
             jobExecutors[i].stop();
         }
 
-        timer.cancel(); // daemon 이어도 안전하게 종료
         logger.debug("[{}] is finished.", ownerName);
     }
 
     ////////////////////////////////////////////////////////////////////////////////
 
-    private int addJobToExecutor(int index, Job job) {
-        jobExecutors[index].addJob(job);
+    public void addJobToExecutor(Job job) {
+        jobExecutors[curExecutorIndex].addJob(job);
 
-        index++;
-        if (index >= poolSize) {
-            index = 0;
+        curExecutorIndex++;
+        if (curExecutorIndex >= poolSize) {
+            curExecutorIndex = 0;
         }
-
-        return index;
     }
 
-    private boolean isJobFinished(Job job) {
+    public boolean isJobFinished(Job job) {
         if (job == null) {
             return true;
         }
@@ -93,41 +91,9 @@ public class JobScheduler {
 
     ////////////////////////////////////////////////////////////////////////////////
 
-    private class FutureScheduler extends TimerTask {
-
-        private final int index;
-        private final Timer timer;
-        private final Job job;
-
-        public FutureScheduler(int index, Job job, Timer timer) {
-            this.index = index;
-            this.job = job;
-            this.timer = timer;
-        }
-
-        @Override
-        public void run() {
-            if (isJobFinished(job)) {
-                return;
-            }
-
-            int newIndex = addJobToExecutor(index, job);
-            int interval = job.getInterval();
-            if (interval > 0) {
-                long intervalGap = System.currentTimeMillis() - this.scheduledExecutionTime();
-                if (intervalGap > 0) {
-                    timer.scheduleAtFixedRate(new FutureScheduler(newIndex, job, timer), interval - intervalGap, interval);
-                } else {
-                    timer.scheduleAtFixedRate(new FutureScheduler(newIndex, job, timer), interval, interval);
-                }
-            }
-
-            this.cancel();
-        }
-
+    public int getCurExecutorIndex() {
+        return curExecutorIndex;
     }
-
-    ////////////////////////////////////////////////////////////////////////////////
 
     @Override
     public String toString() {

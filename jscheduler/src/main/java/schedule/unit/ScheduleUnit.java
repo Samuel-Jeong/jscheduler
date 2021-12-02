@@ -35,11 +35,13 @@ public class ScheduleUnit {
 
     public boolean start(Job job) {
         if (job == null) { return false; }
+        job.setScheduleUnitKey(scheduleUnitKey);
         return jobScheduler.schedule(job);
     }
 
     public void stop(Job job) {
         if (job == null) { return; }
+        job.setScheduleUnitKey(null);
         jobScheduler.cancel(job);
     }
 
@@ -48,6 +50,10 @@ public class ScheduleUnit {
     }
 
     ////////////////////////////////////////////////////////////////////////////////
+
+    public JobScheduler getJobScheduler() {
+        return jobScheduler;
+    }
 
     public String getScheduleUnitKey() {
         return scheduleUnitKey;
