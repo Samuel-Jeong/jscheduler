@@ -118,10 +118,10 @@ public class ScheduleManager {
         return addScheduleUnit(key, totalThreadPoolSize, priorityBlockingQueueSize) != null;
     }
 
-    public boolean startJob(String key, Job job) {
-        if (key == null) { return false; }
+    public boolean startJob(String scheduleUnitKey, Job job) {
+        if (scheduleUnitKey == null) { return false; }
 
-        ScheduleUnit scheduleUnit = getScheduleUnit(key);
+        ScheduleUnit scheduleUnit = getScheduleUnit(scheduleUnitKey);
         if (scheduleUnit == null) {
             return false;
         }
@@ -146,6 +146,17 @@ public class ScheduleManager {
 
         scheduleUnit.stopAll();
         removeScheduleUnit(scheduleUnitKey);
+    }
+
+    public int getActiveJobNumber(String scheduleUnitKey) {
+        if (scheduleUnitKey == null) { return 0; }
+
+        ScheduleUnit scheduleUnit = getScheduleUnit(scheduleUnitKey);
+        if (scheduleUnit == null) {
+            return 0;
+        }
+
+        return scheduleUnit.getJobKeyListSize();
     }
 
     ////////////////////////////////////////////////////////////////////////////////

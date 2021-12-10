@@ -3,9 +3,6 @@ package schedule.handler;
 import job.Job;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import schedule.unit.FutureScheduler;
-
-import java.util.Timer;
 
 public class JobScheduler {
 
