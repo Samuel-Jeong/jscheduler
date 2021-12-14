@@ -41,19 +41,25 @@ public class ScheduleUnit {
     public boolean start(Job job) {
         if (job == null) { return false; }
         job.setScheduleUnitKey(scheduleUnitKey);
-        jobKeyList.add(job.getName());
+        synchronized (jobKeyList) {
+            jobKeyList.add(job.getName());
+        }
         return jobScheduler.schedule(job);
     }
 
     public void stop(Job job) {
         if (job == null) { return; }
         job.setScheduleUnitKey(null);
-        jobKeyList.remove(job.getName());
+        synchronized (jobKeyList) {
+            jobKeyList.remove(job.getName());
+        }
         jobScheduler.cancel(job);
     }
 
     public void stopAll() {
-        jobKeyList.clear();
+        synchronized (jobKeyList) {
+            jobKeyList.clear();
+        }
         jobScheduler.stop();
     }
 
@@ -77,6 +83,10 @@ public class ScheduleUnit {
 
     public long getCreatedTime() {
         return createdTime;
+    }
+
+    public List<String> getJobKeyList() {
+        return jobKeyList;
     }
 
     ////////////////////////////////////////////////////////////////////////////////
