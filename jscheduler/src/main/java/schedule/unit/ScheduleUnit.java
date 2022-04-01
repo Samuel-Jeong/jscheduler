@@ -1,11 +1,15 @@
 package schedule.unit;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import job.Job;
 import schedule.handler.JobScheduler;
 
 public class ScheduleUnit {
 
     ////////////////////////////////////////////////////////////////////////////////
+    private static final Logger logger = LoggerFactory.getLogger(ScheduleUnit.class);
+
     public static final int DEFAULT_THREAD_COUNT = 5;
     private final long createdTime = System.currentTimeMillis();
 

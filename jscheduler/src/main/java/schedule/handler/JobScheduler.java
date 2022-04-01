@@ -1,8 +1,8 @@
 package schedule.handler;
 
-import job.Job;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import job.Job;
 import schedule.unit.JobAdder;
 
 import java.util.HashMap;
@@ -45,20 +45,25 @@ public class JobScheduler {
 
         scheduleLock.lock();
         try {
-            int interval = job.getInterval();
-            if (interval > 0) {
-                JobAdder jobAdder = new JobAdder(this, job, curExecutorIndex);
-                jobAdder.run();
-                curExecutorIndex++;
-                if (curExecutorIndex >= poolSize) {
-                    curExecutorIndex = 0;
-                }
-                scheduleMap.put(
-                        scheduleUnitKey + ":" + job.getName(),
-                        jobAdder
+            if (job.isLasted() && job.getInterval() <= 0) {
+                logger.warn("[JobScheduler({})] Fail to start [{}]. Job is lasted, but interval is not positive. (interval={})",
+                        scheduleUnitKey,
+                        job.getName(), job.getInterval()
                 );
-                logger.debug("[JobScheduler({})] [{}] is started.", scheduleUnitKey, job.getName());
+                return false;
             }
+
+            JobAdder jobAdder = new JobAdder(this, job, curExecutorIndex);
+            jobAdder.run();
+            curExecutorIndex++;
+            if (curExecutorIndex >= poolSize) {
+                curExecutorIndex = 0;
+            }
+            scheduleMap.put(
+                    scheduleUnitKey + ":" + job.getName(),
+                    jobAdder
+            );
+            logger.debug("[JobScheduler({})] [{}] is started.", scheduleUnitKey, job.getName());
         } catch (Exception e) {
             logger.warn("[JobScheduler({})] Fail to schedule the job. ({})", scheduleUnitKey, job.getName(), e);
             return false;

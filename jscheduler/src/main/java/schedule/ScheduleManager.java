@@ -1,8 +1,8 @@
 package schedule;
 
-import job.Job;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import job.Job;
 import schedule.unit.ScheduleUnit;
 
 import java.util.HashMap;
@@ -114,6 +114,7 @@ public class ScheduleManager {
 
         ScheduleUnit scheduleUnit = getScheduleUnit(scheduleUnitKey);
         if (scheduleUnit == null) {
+            logger.warn("Fail to start the job. Fail to find the scheduleUnit. (scheduleUnitKey={})", scheduleUnitKey);
             return false;
         }
 
