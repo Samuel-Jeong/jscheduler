@@ -11,29 +11,20 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class ScheduleManager {
 
+    ////////////////////////////////////////////////////////////
+    // VARIABLES
     private static final Logger logger = LoggerFactory.getLogger(ScheduleManager.class);
-    
-    private static ScheduleManager scheduleManager = null;
-
     private final HashMap<String, ScheduleUnit> scheduleUnitMap = new HashMap<>();
     private final ReentrantLock scheduleUnitMapLock = new ReentrantLock();
+    ////////////////////////////////////////////////////////////
 
+    ////////////////////////////////////////////////////////////
+    // CONSTRUCTOR
+    public ScheduleManager() {}
     ////////////////////////////////////////////////////////////////////////////////
 
-    public ScheduleManager() {
-        // ignore
-    }
-    
-    public static ScheduleManager getInstance() {
-        if (scheduleManager == null) {
-            scheduleManager = new ScheduleManager();
-        }
-
-        return scheduleManager;
-    }
-
-    ////////////////////////////////////////////////////////////////////////////////
-
+    ////////////////////////////////////////////////////////////
+    // FUNCTIONS
     public int getScheduleUnitMapSize() {
         return scheduleUnitMap.size();
     }
@@ -146,6 +137,23 @@ public class ScheduleManager {
 
         scheduleUnit.stopAll();
         removeScheduleUnit(scheduleUnitKey);
+    }
+
+    public void finish() {
+        for (Map.Entry<String, ScheduleUnit> entry : getCloneCallMap().entrySet()) {
+            if (entry == null) {
+                continue;
+            }
+
+            ScheduleUnit scheduleUnit = entry.getValue();
+            if (scheduleUnit == null) {
+                continue;
+            }
+
+            scheduleUnit.stopAll();
+        }
+
+        clearScheduleUnitMap();
     }
 
     public int getActiveJobNumber(String scheduleUnitKey) {
