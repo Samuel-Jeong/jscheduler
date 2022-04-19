@@ -1,9 +1,9 @@
 package schedule.handler;
 
+import job.Job;
 import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import job.Job;
 
 import java.util.Comparator;
 import java.util.concurrent.PriorityBlockingQueue;
@@ -60,8 +60,10 @@ public class JobExecutor {
                 Job job = priorityQueue.poll();
                 if (job == null) { return; }
 
-                //logger.debug("[scheduleUnitKey={}, index={}] JOB: {}", scheduleUnitKey, index, job.getName());
-                job.run();
+                Runnable runnable = job.getRunnable();
+                if (runnable == null) { return; }
+
+                runnable.run();
                 if (!job.isLasted()) {
                     job.decCurRemainRunCount();
                     if (job.getCurRemainRunCount() < 0) {
@@ -80,8 +82,8 @@ public class JobExecutor {
         priorityQueue.clear();
     }
 
-    public void addJob(Job job) {
-        priorityQueue.offer(job);
+    public boolean addJob(Job job) {
+        return priorityQueue.offer(job);
     }
 
     public int getIndex() {

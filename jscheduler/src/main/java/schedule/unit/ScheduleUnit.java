@@ -1,8 +1,9 @@
 package schedule.unit;
 
+import job.Job;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import job.Job;
+
 import schedule.handler.JobScheduler;
 
 public class ScheduleUnit {
