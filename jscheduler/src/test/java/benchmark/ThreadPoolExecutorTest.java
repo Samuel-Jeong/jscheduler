@@ -18,11 +18,12 @@ public class ThreadPoolExecutorTest implements SchedulerFactory {
     @Override
     public void startOneShotForCount(int count) {
         for (int i = 0; i < count; i++) {
-            scheduledThreadPoolExecutor.schedule(
+            scheduledThreadPoolExecutor.execute(new SumHandlerRunnable(scheduledThreadPoolExecutor, true, 100000));
+            /*scheduledThreadPoolExecutor.schedule(
                     new SumHandlerRunnable(scheduledThreadPoolExecutor, true, 100000),
                     0,
                     TimeUnit.SECONDS
-            );
+            );*/
         }
     }
 

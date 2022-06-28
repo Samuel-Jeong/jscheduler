@@ -1,9 +1,11 @@
 package example;
 
+import benchmark.BenchMarkTest;
 import benchmark.BenchMarkTestManager;
 import benchmark.SchedulerFactory;
 import job.Job;
 import job.JobContainer;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 
+@Slf4j
 public class SumHandlerRunnable implements Runnable {
 
     private static final Logger logger = LoggerFactory.getLogger(SumHandlerRunnable.class);
@@ -36,12 +39,22 @@ public class SumHandlerRunnable implements Runnable {
         }
 
         if (isLeft) {
-            BenchMarkTestManager.getInstance().incAndGetLeftExecutionCount();
+            long count = BenchMarkTestManager.getInstance().incAndGetLeftExecutionCount();
+            if (count == BenchMarkTest.SCHEDULE_COUNT) {
+                BenchMarkTestManager.getInstance().stopLeftExecutionTimer();
+                log.info("totalLeftExecutionTime: {}", BenchMarkTestManager.getInstance().getTotalLeftExecutionTimeMilli());
+            }
         } else {
-            BenchMarkTestManager.getInstance().incAndGetRightExecutionCount();
+            long count = BenchMarkTestManager.getInstance().incAndGetRightExecutionCount();
+            if (count == BenchMarkTest.SCHEDULE_COUNT) {
+                BenchMarkTestManager.getInstance().stopRightExecutionTimer();
+                log.info("totalRightExecutionTime: {}", BenchMarkTestManager.getInstance().getTotalRightExecutionTimeMilli());
+            }
         }
 
-        //logger.debug("{}", sumList.stream().count());
+        /*logger.debug("{}", sumList.stream().count());
+        scheduledThreadPoolExecutor.remove(this);
+        scheduledThreadPoolExecutor.purge();*/
         //scheduledThreadPoolExecutor.shutdownNow();
         //scheduledThreadPoolExecutor.remove(this);
     }

@@ -7,7 +7,7 @@ import org.junit.Test;
 public class BenchMarkTest {
 
     private static final int POOL_SIZE = 100;
-    private static final int SCHEDULE_COUNT = 300000;
+    public static final int SCHEDULE_COUNT = 50000;
     private static final int WAIT_TIME_MILLI = 20000;
 
     @Test
@@ -18,7 +18,6 @@ public class BenchMarkTest {
         benchMarkTestManager.startLeftExecutionTimer();
         ThreadPoolExecutorTest threadPoolExecutorTest = new ThreadPoolExecutorTest(POOL_SIZE);
         threadPoolExecutorTest.startOneShotForCount(SCHEDULE_COUNT);
-        benchMarkTestManager.stopLeftExecutionTimer();
         //
 
         benchMarkTestManager.sleepMilli(WAIT_TIME_MILLI);

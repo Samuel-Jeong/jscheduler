@@ -1,10 +1,12 @@
 package benchmark;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.time.StopWatch;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
+@Slf4j
 public class BenchMarkTestManager {
 
     private static BenchMarkTestManager benchMarkTestManager = new BenchMarkTestManager();
