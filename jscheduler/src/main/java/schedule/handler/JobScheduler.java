@@ -67,7 +67,7 @@ public class JobScheduler {
                     scheduleUnitKey + ":" + job.getName(),
                     jobAdder
             );
-            logger.debug("[JobScheduler({})] [{}] is started.", scheduleUnitKey, job.getName());
+            logger.trace("[JobScheduler({})] [{}] is started.", scheduleUnitKey, job.getName());
         } catch (Exception e) {
             logger.warn("[JobScheduler({})] Fail to schedule the job. ({})", scheduleUnitKey, job.getName(), e);
             return false;
