@@ -1,6 +1,7 @@
 package job;
 
 import schedule.ScheduleManager;
+import schedule.handler.callback.JobFinishCallBack;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -22,6 +23,8 @@ public class Job {
 
     private String scheduleUnitKey = null;
     private Runnable runnable = null;
+
+    private JobFinishCallBack jobFinishCallBack = null;
 
     public Job() {
         // Nothing
@@ -129,6 +132,14 @@ public class Job {
 
     public void setRunnable(Runnable runnable) {
         this.runnable = runnable;
+    }
+
+    public void setJobFinishCallBack(JobFinishCallBack jobFinishCallBack) {
+        this.jobFinishCallBack = jobFinishCallBack;
+    }
+
+    public JobFinishCallBack getJobFinishCallBack() {
+        return jobFinishCallBack;
     }
 
     @Override

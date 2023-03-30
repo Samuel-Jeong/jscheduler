@@ -89,6 +89,9 @@ public class JobScheduler {
                 jobAdder.stop();
                 job.setIsFinished(true);
                 scheduleMap.remove(jobKey);
+
+                job.getJobFinishCallBack().finish();
+
                 logger.debug("[JobScheduler({})] [{}] is canceled.", scheduleUnitKey, job.getName());
             } else {
                 logger.warn("[JobScheduler({})] [{}] is not canceled. Not found the job.", scheduleUnitKey, job.getName());

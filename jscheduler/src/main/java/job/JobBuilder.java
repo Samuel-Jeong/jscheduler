@@ -1,6 +1,7 @@
 package job;
 
 import schedule.ScheduleManager;
+import schedule.handler.callback.JobFinishCallBack;
 
 import java.util.concurrent.TimeUnit;
 
@@ -50,6 +51,11 @@ public class JobBuilder {
 
     public JobBuilder setIsLasted(boolean isLasted) {
         job.setLasted(isLasted);
+        return this;
+    }
+
+    public JobBuilder setJobFinishCallBack(JobFinishCallBack jobFinishCallBack) {
+        job.setJobFinishCallBack(jobFinishCallBack);
         return this;
     }
 
