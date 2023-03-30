@@ -44,6 +44,7 @@ public class JobBuilder {
 
     public JobBuilder setTotalRunCount(int totalRunCount) {
         job.setTotalRunCount(totalRunCount);
+        job.setCurRemainRunCount(totalRunCount);
         return this;
     }
 

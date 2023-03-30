@@ -21,7 +21,7 @@ public class JobAdder implements Runnable {
 
     @Override
     public void run() {
-        if (job.isLasted()) {
+        if (!job.isLasted()) {
             scheduledThreadPoolExecutor.scheduleAtFixedRate(
                     () -> {
                         if (isJobFinished(job)) {
