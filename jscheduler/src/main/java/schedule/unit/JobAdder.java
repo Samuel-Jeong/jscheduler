@@ -21,20 +21,18 @@ public class JobAdder implements Runnable {
 
     @Override
     public void run() {
-        if (!job.isLasted()) {
-            scheduledThreadPoolExecutor.scheduleAtFixedRate(
-                    () -> {
-                        if (isJobFinished(job)) {
-                            jobScheduler.cancel(job);
-                        } else {
-                            jobScheduler.addJobToExecutor(executorIndex, job);
-                        }
-                    },
-                    job.getInitialDelay(), job.getInterval(), job.getTimeUnit()
-            );
-        } else {
-            jobScheduler.addJobToExecutor(executorIndex, job);
-        }
+        scheduledThreadPoolExecutor.scheduleAtFixedRate(
+                !job.isLasted() ?
+                        (() -> {
+                            if (isJobFinished(job)) {
+                                jobScheduler.cancel(job);
+                            } else {
+                                jobScheduler.addJobToExecutor(executorIndex, job);
+                            }
+                        })
+                        : (() -> jobScheduler.addJobToExecutor(executorIndex, job)),
+                job.getInitialDelay(), job.getInterval(), job.getTimeUnit()
+        );
     }
 
     public void stop() {
