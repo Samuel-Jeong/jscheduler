@@ -8,7 +8,7 @@
 3. ScheduledThreadPoolExecutor 는 작업을 한번 또는 무한하게 동작하도록 예약 가능하지만, JScheduler 는 작업을 한번이 아니라 일정 횟수만큼 돌고 종료하도록 예약할 수 있다.
 4. 작업 큐는 우선순위 큐를 사용한다.
 5. 작업 진행 중에 예외가 발생하거나 종료해야될 상황일 때 해당 작업을 종료시키고 싶으면, ScheduledThreadPoolExecutor 는 중간에 cancel 할 수 있지만 부 대기열에 배치되기 전에 다른 형식으로 변환된 작업이면 취소할 수 없어서 확실하게 종료하려면 자신에게 등록된 모든 작업을 중단(shutdown 함수 사용)해야 한다.
-   하지만, JScheduler 다른 작업들과는 독립적으로 해당 작업만 종료시킬 수 있다. (어떤 상황이든지 특정 작업 중다 가능)
+   하지만, JScheduler 다른 작업들과는 독립적으로 해당 작업만 종료시킬 수 있다. (어떤 상황이든지 특정 작업 중단 가능)
 (It may fail to remove tasks that have been converted into other forms before being placed on the internal queue. For example, a task entered using submit might be converted into a form that maintains Future status.)
 ~~~
 
