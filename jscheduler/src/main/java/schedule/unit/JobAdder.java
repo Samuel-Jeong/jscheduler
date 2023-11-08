@@ -27,6 +27,7 @@ public class JobAdder implements Runnable {
                             if (isJobFinished(job)) {
                                 jobScheduler.cancel(job);
                             } else {
+                                job.decCurRemainRunCount();
                                 jobScheduler.addJobToExecutor(executorIndex, job);
                             }
                         })

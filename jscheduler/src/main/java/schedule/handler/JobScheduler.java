@@ -3,6 +3,7 @@ package schedule.handler;
 import job.Job;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import schedule.handler.callback.JobFinishCallBack;
 import schedule.unit.JobAdder;
 
 import java.util.HashMap;
@@ -90,7 +91,10 @@ public class JobScheduler {
                 job.setIsFinished(true);
                 scheduleMap.remove(jobKey);
 
-                job.getJobFinishCallBack().finish();
+                JobFinishCallBack jobFinishCallBack = job.getJobFinishCallBack();
+                if (jobFinishCallBack != null) {
+                    jobFinishCallBack.finish();
+                }
 
                 logger.debug("[JobScheduler({})] [{}] is canceled.", scheduleUnitKey, job.getName());
             } else {

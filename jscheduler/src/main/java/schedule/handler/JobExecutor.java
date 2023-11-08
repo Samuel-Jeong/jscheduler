@@ -2,8 +2,6 @@ package schedule.handler;
 
 import job.Job;
 import org.apache.commons.lang3.concurrent.BasicThreadFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Comparator;
 import java.util.concurrent.PriorityBlockingQueue;
@@ -14,9 +12,6 @@ import java.util.concurrent.TimeUnit;
 public class JobExecutor {
 
     ////////////////////////////////////////////////////////////////////////////////
-    private static final Logger logger = LoggerFactory.getLogger(JobExecutor.class);
-
-    private final String scheduleUnitKey;
     private final int index;
 
     private final PriorityBlockingQueue<Job> priorityQueue;
@@ -25,7 +20,6 @@ public class JobExecutor {
 
     ////////////////////////////////////////////////////////////////////////////////
     public JobExecutor(String scheduleUnitKey, int index, int queueSize) {
-        this.scheduleUnitKey = scheduleUnitKey;
         this.index = index;
 
         priorityQueue = new PriorityBlockingQueue<>(
@@ -65,7 +59,6 @@ public class JobExecutor {
 
                 runnable.run();
                 if (!job.isLasted()) {
-                    job.decCurRemainRunCount();
                     if (job.getCurRemainRunCount() < 0) {
                         job.setIsFinished(true);
                     }
