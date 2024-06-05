@@ -58,7 +58,7 @@ public class RedBlackTree {
         }
 
         printTree(node.left);
-        logger.debug("[{}]", node.getData());
+        logger.info("[{}]", node.getData());
         printTree(node.right);
     }
 
@@ -75,7 +75,7 @@ public class RedBlackTree {
 
             deleteNode(result.getData());
         } catch (InterruptedException e) {
-            //e.printStackTrace();
+            logger.warn("take", e);
             return null;
         } finally {
             lock.unlock();
@@ -100,7 +100,7 @@ public class RedBlackTree {
                 deleteNode(result.getData());
             }
         } catch (InterruptedException e) {
-            //e.printStackTrace();
+            logger.warn("poll", e);
             return null;
         } finally {
             lock.unlock();

@@ -52,10 +52,11 @@ public class SumHandlerRunnable implements Runnable {
             }
         }
 
-        /*logger.debug("{}", sumList.stream().count());
+        /*logger.info("{}", sumList.stream().count());
         scheduledThreadPoolExecutor.remove(this);
         scheduledThreadPoolExecutor.purge();*/
         //scheduledThreadPoolExecutor.shutdownNow();
         //scheduledThreadPoolExecutor.remove(this);
     }
+
 }

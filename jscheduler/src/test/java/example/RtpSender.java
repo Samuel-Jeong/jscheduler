@@ -14,7 +14,7 @@ public class RtpSender extends JobContainer {
     }
 
     public void init() {
-        getJob().setRunnable(() -> logger.debug("SEND RTP !!!"));
+        getJob().setRunnable(() -> logger.info("SEND RTP !!!"));
     }
 
 }

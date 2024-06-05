@@ -68,7 +68,10 @@ public class JobScheduler {
                     scheduleUnitKey + ":" + job.getName(),
                     jobAdder
             );
-            logger.trace("[JobScheduler({})] [{}] is started.", scheduleUnitKey, job.getName());
+
+            if (logger.isDebugEnabled()) {
+                logger.debug("[JobScheduler({})] [{}] is started.", scheduleUnitKey, job.getName());
+            }
         } catch (Exception e) {
             logger.warn("[JobScheduler({})] Fail to schedule the job. ({})", scheduleUnitKey, job.getName(), e);
             return false;
@@ -96,7 +99,9 @@ public class JobScheduler {
                     jobFinishCallBack.finish();
                 }
 
-                logger.debug("[JobScheduler({})] [{}] is canceled.", scheduleUnitKey, job.getName());
+                if (logger.isDebugEnabled()) {
+                    logger.debug("[JobScheduler({})] [{}] is canceled.", scheduleUnitKey, job.getName());
+                }
             } else {
                 logger.warn("[JobScheduler({})] [{}] is not canceled. Not found the job.", scheduleUnitKey, job.getName());
             }
@@ -112,7 +117,7 @@ public class JobScheduler {
         try {
             scheduleMap.values().forEach(JobAdder::stop);
             scheduleMap.clear();
-            logger.debug("[JobScheduler({})] Success to stop all the jobs.", scheduleUnitKey);
+            logger.info("[JobScheduler({})] Success to stop all the jobs.", scheduleUnitKey);
         } catch (Exception e) {
             logger.warn("[JobScheduler({})] Fail to stop the jobs.", scheduleUnitKey, e);
         } finally {
@@ -130,7 +135,7 @@ public class JobScheduler {
             executorLock.unlock();
         }
 
-        logger.debug("[JobScheduler({})] is finished.", scheduleUnitKey);
+        logger.info("[JobScheduler({})] is finished.", scheduleUnitKey);
     }
     ////////////////////////////////////////////////////////////////////////////////
 
@@ -138,8 +143,11 @@ public class JobScheduler {
     public void addJobToExecutor(int executorIndex, Job job) {
         executorLock.lock();
         try {
-            jobExecutors[executorIndex].addJob(job);
-            //logger.debug("jobExecutor[{}] add job ({})", curExecutorIndex, job.getName());
+            if (jobExecutors[executorIndex].addJob(job)) {
+                if (logger.isDebugEnabled()) {
+                    logger.debug("jobExecutor[{}] add job ({})", curExecutorIndex, job.getName());
+                }
+            }
         } catch (Exception e) {
             logger.warn("[JobScheduler({})] Fail to add the job to executors. Exception", scheduleUnitKey, e);
         } finally {

@@ -16,7 +16,7 @@ public class RtpRecevier extends JobContainer {
     }
 
     public void init() {
-        getJob().setRunnable(() -> logger.debug("RECV RTP @@@"));
+        getJob().setRunnable(() -> logger.info("RECV RTP @@@"));
     }
 
 }

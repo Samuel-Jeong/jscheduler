@@ -16,7 +16,7 @@ public class HaHandler extends JobContainer {
     }
 
     public void init() {
-        getJob().setRunnable(() -> logger.debug("HA: THREAD={}", Thread.activeCount()));
+        getJob().setRunnable(() -> logger.info("HA: THREAD={}", Thread.activeCount()));
     }
 
 }

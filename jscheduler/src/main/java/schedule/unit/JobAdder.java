@@ -31,7 +31,14 @@ public class JobAdder implements Runnable {
                                 jobScheduler.addJobToExecutor(executorIndex, job);
                             }
                         })
-                        : (() -> jobScheduler.addJobToExecutor(executorIndex, job)),
+                        :
+                        (() -> {
+                            if (isJobFinished(job)) {
+                                jobScheduler.cancel(job);
+                            } else {
+                                jobScheduler.addJobToExecutor(executorIndex, job);
+                            }
+                        }),
                 job.getInitialDelay(), job.getInterval(), job.getTimeUnit()
         );
     }

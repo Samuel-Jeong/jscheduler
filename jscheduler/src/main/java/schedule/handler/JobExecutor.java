@@ -43,7 +43,21 @@ public class JobExecutor {
     }
     ////////////////////////////////////////////////////////////////////////////////
 
+    public void stop() {
+        scheduledThreadPoolExecutor.shutdown();
+        priorityQueue.clear();
+    }
+
+    public boolean addJob(Job job) {
+        return priorityQueue.offer(job);
+    }
+
+    public int getIndex() {
+        return index;
+    }
+
     ////////////////////////////////////////////////////////////////////////////////
+
     private class Worker implements Runnable {
 
         @Override
@@ -57,31 +71,19 @@ public class JobExecutor {
                 Runnable runnable = job.getRunnable();
                 if (runnable == null) { return; }
 
-                runnable.run();
                 if (!job.isLasted()) {
                     if (job.getCurRemainRunCount() < 0) {
                         job.setIsFinished(true);
                     }
                 }
+
+                runnable.run();
             } catch (Exception e) {
                 // ignore
             }
         }
-
     }
 
-    public void stop() {
-        scheduledThreadPoolExecutor.shutdown();
-        priorityQueue.clear();
-    }
-
-    public boolean addJob(Job job) {
-        return priorityQueue.offer(job);
-    }
-
-    public int getIndex() {
-        return index;
-    }
     ////////////////////////////////////////////////////////////////////////////////
 
 }

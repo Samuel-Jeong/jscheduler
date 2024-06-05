@@ -79,7 +79,7 @@ public class NormalTest {
         try {
             msTimeUnit.sleep(5000);
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            log.warn("InterruptedException", e);
         }
 
         // 4) Stop job
